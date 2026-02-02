@@ -1,0 +1,21 @@
+# nats-sub-pod.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nats-sub
+spec:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+  - name: nats-sub
+    image: natsio/nats-box
+    command: ["nats", "sub", "-s", "nats://nats:4222", "test.subject"]
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+        - ALL
+  restartPolicy: Never
