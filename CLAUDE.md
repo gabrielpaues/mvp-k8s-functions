@@ -35,10 +35,20 @@ kubectl wait --for=condition=ready pod -l app=registry --timeout=60s
 
 # Port forward for local access
 kubectl port-forward svc/registry 5000:5000
+# On macOS with Podman, bind to all interfaces:
+kubectl port-forward --address 0.0.0.0 svc/registry 5000:5000
 
-# Push an image
+# Push an image (Docker)
 docker tag nginx:latest host.docker.internal:5000/nginx:latest
 docker push host.docker.internal:5000/nginx:latest
+
+# Push an image (Podman on macOS — uses host.containers.internal to reach host from VM)
+podman tag nginx:latest host.containers.internal:5000/nginx:latest
+podman push --tls-verify=false host.containers.internal:5000/nginx:latest
+
+# Push an image (Podman on Linux)
+podman tag nginx:latest localhost:5000/nginx:latest
+podman push --tls-verify=false localhost:5000/nginx:latest
 
 # Verify registry contents
 curl http://localhost:5000/v2/_catalog
